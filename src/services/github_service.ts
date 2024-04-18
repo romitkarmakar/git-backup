@@ -13,8 +13,8 @@ export default class GithubService {
 
     async testConnection() {
         const url = `${this.BASE_URL}/octocat`
-        
-        const response = await axios.get(url, { headers: this.getHeaders()})
+
+        const response = await axios.get(url, { headers: this.getHeaders() })
         return response.data
     }
 
@@ -64,6 +64,17 @@ export default class GithubService {
             pathParts.pop()
             const folderPath = pathParts.join("/")
             require("fs").mkdirSync(folderPath, { recursive: true })
+        }
+    }
+
+    deleteDownloadPath(path: string) {
+        try {
+            if (require("fs").existsSync(path)) {
+                require("fs").unlinkSync(path)
+                console.log(`Deleted ${path}`)
+            }
+        } catch (error) {
+            console.error(error)
         }
     }
 }
