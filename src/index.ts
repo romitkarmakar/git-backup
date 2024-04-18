@@ -11,6 +11,9 @@ async function main() {
     await storageService.setup();
     const github_org = process.env.GITHUB_ORG as string;
 
+    const bucket_size = await storageService.calculateBucketSize();
+    console.log(`Current Bucket size: ${HelperService.formatSize(bucket_size)} bytes`);
+
     try {
         const response = await githubService.getOrgRepositories(github_org);
         for (const repo of response) {
@@ -29,11 +32,11 @@ async function main() {
 
                 await githubService.deleteDownloadPath(path);
             }
-
-            break;
         }
     } catch (error) {
         console.error(error);
+    } finally {
+        await storageService.clearTmp();
     }
 }
 

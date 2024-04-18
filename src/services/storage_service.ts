@@ -1,4 +1,7 @@
 import AWS from 'aws-sdk';
+import { execSync } from 'child_process';
+import os from 'os';
+import HelperService from './helper_service';
 
 export default class StorageService {
     setup() {
@@ -23,5 +26,29 @@ export default class StorageService {
         } catch (error) {
             console.error(error);
         }
+    }
+
+    async calculateBucketSize() {
+        const s3 = new AWS.S3();
+        const params = {
+            Bucket: process.env.AWS_BUCKET_NAME
+        };
+
+        const objects = await s3.listObjectsV2(params).promise();
+        let size = 0;
+
+        for (const object of objects.Contents) {
+            size += object.Size;
+        }
+
+        return size;
+    }
+
+    async clearTmp() {
+        console.log('Clearing tmp folder');
+        const path = 'tmp/*';
+
+        const command = os.platform() === 'win32' ? `rmdir /s /q ${path}` : `rm -rf ${path}`;
+        execSync(command);
     }
 }
