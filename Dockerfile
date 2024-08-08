@@ -1,6 +1,6 @@
 FROM node:18.18-alpine3.17
 
-RUN apt install -y wget unzip
+RUN apk add --no-cache bash wget
 RUN wget https://fastdl.mongodb.org/tools/db/mongodb-database-tools-ubuntu1804-x86_64-100.10.0.deb -O /tmp/mongodb-database-tools.deb
 RUN dpkg -i /tmp/mongodb-database-tools.deb
 RUN rm /tmp/mongodb-database-tools.deb
