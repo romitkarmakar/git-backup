@@ -1,7 +1,6 @@
 import AWS from 'aws-sdk';
 import { execSync } from 'child_process';
 import os from 'os';
-import HelperService from './helper_service';
 
 export default class StorageService {
     setup() {
@@ -42,6 +41,36 @@ export default class StorageService {
         }
 
         return size;
+    }
+
+    async listOlderFiles(days = 7) {
+        const s3 = new AWS.S3();
+        const params = {
+            Bucket: process.env.AWS_BUCKET_NAME
+        };
+
+        const objects = await s3.listObjectsV2(params).promise();
+        const now = new Date();
+        const threshold = new Date(now.setDate(now.getDate() - days));
+        const keys = [];
+
+        for (const object of objects.Contents) {
+            if (object.LastModified < threshold) {
+                keys.push(object.Key);
+            }
+        }
+
+        return keys;
+    }
+
+    async deleteS3File(key: string) {
+        const s3 = new AWS.S3();
+        const params = {
+            Bucket: process.env.AWS_BUCKET_NAME,
+            Key: key
+        };
+
+        await s3.deleteObject(params).promise();
     }
 
     async clearTmp() {

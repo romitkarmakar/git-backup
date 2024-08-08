@@ -17,4 +17,24 @@ export default class HelperService {
 
         return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
     }
+
+    static createBatches(batch_size: number = 5, items: any[]) {
+        const batches = [];
+        let currentBatch = [];
+
+        for (const item of items) {
+            if (currentBatch.length === batch_size) {
+                batches.push(currentBatch);
+                currentBatch = [];
+            }
+
+            currentBatch.push(item);
+        }
+
+        if (currentBatch.length > 0) {
+            batches.push(currentBatch);
+        }
+
+        return batches;
+    }
 }
