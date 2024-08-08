@@ -2,11 +2,16 @@ import axios from "axios"
 import { IGithubRepository } from "../models/github_model"
 
 export default class GithubService {
+    github_token: string
     BASE_URL = "https://api.github.com"
+
+    constructor(github_token: string) {
+        this.github_token = github_token
+    }
 
     getHeaders() {
         return {
-            "Authorization": `Bearer ${process.env.GITHUB_TOKEN}`,
+            "Authorization": `Bearer ${this.github_token}`,
             "X-Github-Api-Version": "2022-11-28"
         }
     }

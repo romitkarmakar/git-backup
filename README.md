@@ -9,12 +9,43 @@ Automated Github Backup System for Disaster Recovery. This system takes daily sn
 - Install the dependencies and copy the env file from the example file
 ```shell
 yarn
-cp .env.example .env
 ```
 - Add the required environment file and then run the server
 ```
 yarn dev
 ```
+
+## Configuration
+
+Create a `config.yaml` file in the root directory of the project with the following content
+```yaml
+retention_days: 7
+jobs:
+  - job_type: "git"
+    input:
+      host: "github"
+      org: "<github_org_name>"
+      token: "<github_personal_access_token>"
+    output:
+      storage: "s3"
+      bucket: ""
+      region: ""
+      access_key: ""
+      secret_key: ""
+```
+To deploy the project on platforms like Docker, Heroku, or Railway, you can set the environment variables instead of creating the `config.yaml` file.
+
+- Run this command to get the environment variable which will convert the yaml to env
+```shell
+yarn convert-to-json
+```
+
+- You will get a environment variable will output similar to this
+```shell
+CONFIG_JSON=''
+```
+
+- Copy the output and set the environment variable in the platform where you are deploying the project
 
 ## AWS Setup
 

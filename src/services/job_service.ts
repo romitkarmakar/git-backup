@@ -1,17 +1,30 @@
+import { BackupJob, JobType } from "../models/config_model";
+import ConfigService from "./config_service";
 import GithubService from "./github_service";
 import HelperService from "./helper_service";
 import StorageService from "./storage_service";
 
 export default class JobService {
     async runJobs() {
-        await this.runGithubJob();
+        const jobs = await ConfigService.getJobs(JobType.git);
+        for (const job of jobs) {
+            switch (job.input.host) {
+                case 'github':
+                    await this.runGithubJob(job);
+                    break;
+                default:
+                    console.error('Unknown host');
+                    break;
+            }
+        }
     }
 
-    async runGithubJob() {
-        const storageService = new StorageService();
-        const githubService = new GithubService();
-        storageService.setup();
-        const github_org = process.env.GITHUB_ORG as string;
+    async runGithubJob(job: BackupJob) {
+        const output = job.output;
+        const input = job.input;
+        const storageService = new StorageService(output.region, output.access_key, output.secret_key, output.bucket);
+        const githubService = new GithubService(input.token);
+        const github_org = job.input.org;
 
         const bucket_size = await storageService.calculateBucketSize();
         console.log(`Current Bucket size: ${HelperService.formatSize(bucket_size)} bytes`);

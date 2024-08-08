@@ -3,12 +3,15 @@ import { execSync } from 'child_process';
 import os from 'os';
 
 export default class StorageService {
-    setup() {
+    bucket: string;
+    constructor(region: string, accessKeyId: string, secretAccessKey: string, bucket: string) {
         AWS.config.update({
-            region: process.env.AWS_REGION,
-            accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-            secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY
+            region,
+            accessKeyId,
+            secretAccessKey
         });
+
+        this.bucket = bucket;
     }
 
     async uploadFile(path: string, key: string) {
@@ -16,7 +19,7 @@ export default class StorageService {
 
         try {
             const params = {
-                Bucket: process.env.AWS_BUCKET_NAME,
+                Bucket: this.bucket,
                 Key: key,
                 Body: require('fs').createReadStream(path)
             };
@@ -30,7 +33,7 @@ export default class StorageService {
     async calculateBucketSize() {
         const s3 = new AWS.S3();
         const params = {
-            Bucket: process.env.AWS_BUCKET_NAME
+            Bucket: this.bucket
         };
 
         const objects = await s3.listObjectsV2(params).promise();
@@ -46,7 +49,7 @@ export default class StorageService {
     async listOlderFiles(days = 7) {
         const s3 = new AWS.S3();
         const params = {
-            Bucket: process.env.AWS_BUCKET_NAME
+            Bucket: this.bucket
         };
 
         const objects = await s3.listObjectsV2(params).promise();
@@ -66,7 +69,7 @@ export default class StorageService {
     async deleteS3File(key: string) {
         const s3 = new AWS.S3();
         const params = {
-            Bucket: process.env.AWS_BUCKET_NAME,
+            Bucket: this.bucket,
             Key: key
         };
 
