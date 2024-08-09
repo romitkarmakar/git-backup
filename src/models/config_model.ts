@@ -14,10 +14,27 @@ export enum GitInputHost {
     gitlab = 'gitlab'
 }
 
-export interface Input {
+export type Input = GitBackupInput | MongoBackupInput
+
+export interface GitBackupInput {
     host: GitInputHost
     org: string
     token: string
+}
+
+export interface MongoBackupInput {
+    host: string
+    username: string
+    password: string
+    uri: string
+    db_name: string
+    tunnel: SSLTunnelConfig | null
+}
+
+export interface SSLTunnelConfig {
+    username: string;
+    host: string;
+    private_key: string;
 }
 
 export enum StorageType {

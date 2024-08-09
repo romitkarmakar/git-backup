@@ -1,3 +1,5 @@
+import fs from 'fs';
+
 export default class HelperService {
     static getTodayDate() {
         const today = new Date();
@@ -36,5 +38,11 @@ export default class HelperService {
         }
 
         return batches;
+    }
+
+    static createTmpDir() {
+        if (!fs.existsSync('tmp')) {
+            fs.mkdirSync('tmp');
+        }
     }
 }

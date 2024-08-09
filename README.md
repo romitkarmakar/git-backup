@@ -35,6 +35,11 @@ jobs:
 ```
 To deploy the project on platforms like Docker, Heroku, or Railway, you can set the environment variables instead of creating the `config.yaml` file.
 
+- Convert any `.pem` file to a single line string to set it in the config
+```shell
+awk 'NF {sub(/\r/, ""); printf "%s\\n",$0;}' private.pem
+```
+
 - Run this command to get the environment variable which will convert the yaml to env
 ```shell
 yarn convert-to-json
