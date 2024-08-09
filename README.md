@@ -72,6 +72,19 @@ CONFIG_JSON=''
       secret_key: "<s3_secret_key>"
 ```
 
+## Configuration for Git Mirroring
+```yaml
+- job_type: "git-mirror"
+    input:
+      repo_url: "<repo_url>"
+      git_username: "<git_username>"
+      git_password: "<git_password / personal_access_token>"
+    output:
+      repo_url: "<repo_url>"
+      git_username: "<git_username>"
+      git_password: "<git_password / personal_access_token>"
+```
+
 ## AWS Setup
 
 Minimal AWS Policy for the IAM User
