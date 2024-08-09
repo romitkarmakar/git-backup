@@ -52,6 +52,26 @@ CONFIG_JSON=''
 
 - Copy the output and set the environment variable in the platform where you are deploying the project
 
+## Configuration for MongoDB Backup
+```yaml
+- job_type: "mongodb"
+    input:
+      host: "<mongodb_host>"
+      username: "<mongodb_username>"
+      password: "<mongodb_password>"
+      db_name: "<mongodb_db_name>"
+      tunnel:
+        username: "<ssh_username>"
+        host: "<ssh_host>"
+        private_key: "<private_key in pem format>"
+    output:
+      storage: "s3"
+      bucket: "<s3_bucket>"
+      region: "<s3_region>"
+      access_key: "<s3_access_key>"
+      secret_key: "<s3_secret_key>"
+```
+
 ## AWS Setup
 
 Minimal AWS Policy for the IAM User
