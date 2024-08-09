@@ -1,5 +1,6 @@
-import { BackupJob, GitBackupInput, JobType, MongoBackupInput } from "../models/config_model";
+import { BackupJob, GitBackupInput, GitMirrorInput, JobType, MongoBackupInput, S3Output } from "../models/config_model";
 import ConfigService from "./config_service";
+import GitMirrorService from "./git_mirror_service";
 import GithubService from "./github_service";
 import HelperService from "./helper_service";
 import MongoService from "./mongo_service";
@@ -10,26 +11,31 @@ export default class JobService {
         // Create a /tmp directory if it doesn't exist
         HelperService.createTmpDir();
         
-        const jobs = ConfigService.getJobs(JobType.git);
-        for (const job of jobs) {
-            switch ((job.input as GitBackupInput).host) {
-                case 'github':
-                    await this.runGithubJob(job);
-                    break;
-                default:
-                    console.error('Unknown host');
-                    break;
-            }
-        }
+        // const jobs = ConfigService.getJobs(JobType.git);
+        // for (const job of jobs) {
+        //     switch ((job.input as GitBackupInput).host) {
+        //         case 'github':
+        //             await this.runGithubJob(job);
+        //             break;
+        //         default:
+        //             console.error('Unknown host');
+        //             break;
+        //     }
+        // }
 
-        const mongo_jobs = await ConfigService.getJobs(JobType.mongodb);
-        for (const job of mongo_jobs) {
-            await this.runMongoJob(job);
-        }
+        // const mongo_jobs = await ConfigService.getJobs(JobType.mongodb);
+        // for (const job of mongo_jobs) {
+        //     await this.runMongoJob(job);
+        // }
+
+        // const git_mirror_jobs = await ConfigService.getJobs(JobType.gitMirror);
+        // for (const job of git_mirror_jobs) {
+        //     await this.runGitMirrorJob(job);
+        // }
     }
 
     async runGithubJob(job: BackupJob) {
-        const output = job.output;
+        const output = job.output as S3Output;
         const input = job.input as GitBackupInput;
         const storageService = new StorageService(output.region, output.access_key, output.secret_key, output.bucket);
         const githubService = new GithubService(input.token);
@@ -65,7 +71,7 @@ export default class JobService {
     }
 
     async runMongoJob(job: BackupJob) {
-        const output = job.output;
+        const output = job.output as S3Output;
         const input = job.input as MongoBackupInput;
         const storageService = new StorageService(output.region, output.access_key, output.secret_key, output.bucket);
         const mongoService = new MongoService(input.host, 27017, input.username, input.password, input.uri, input.tunnel);
@@ -82,6 +88,26 @@ export default class JobService {
             console.error(error);
         } finally {
             await storageService.clearTmp();
+        }
+    }
+
+    async runGitMirrorJob(job: BackupJob) {
+        const output = job.output as GitMirrorInput;
+        const input = job.input as GitMirrorInput;
+
+        const git_mirror_service = new GitMirrorService();
+
+        try {
+            const path = `tmp/${input.repo_url.split('/').pop().replace('.git', '')}`;
+            git_mirror_service.cloneRepository(input.repo_url, path, input.username, input.password);
+            console.log(`Repository cloned to ${path}`);
+
+            git_mirror_service.pushMirror(output.repo_url, path, output.username, output.password);
+            console.log(`Repository mirrored to ${output.repo_url}`);
+
+            git_mirror_service.deleteRepository(path);
+        } catch (error) {
+            console.error(error);
         }
     }
 }

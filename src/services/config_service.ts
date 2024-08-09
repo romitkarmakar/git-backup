@@ -9,14 +9,11 @@ export default class ConfigService {
     static async setConfig() {
         if (process.env.CONFIG_JSON) {
             ConfigService.config = JSON.parse(process.env.CONFIG_JSON)
-            console.log(JSON.stringify(ConfigService.config, null, 2))
             return
         }
 
         const config_file = readFileSync('config.yaml', 'utf8')
         ConfigService.config = parse(config_file)
-
-        console.log(JSON.stringify(ConfigService.config, null, 2))
     }
 
     static getRetentionPeriod() {

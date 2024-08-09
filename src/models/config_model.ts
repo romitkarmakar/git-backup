@@ -1,6 +1,7 @@
 export enum JobType {
     git = 'git',
-    mongodb = 'mongodb'
+    mongodb = 'mongodb',
+    gitMirror = 'git-mirror'
 }
 
 export interface BackupJob {
@@ -14,7 +15,8 @@ export enum GitInputHost {
     gitlab = 'gitlab'
 }
 
-export type Input = GitBackupInput | MongoBackupInput
+export type Input = GitBackupInput | MongoBackupInput | GitMirrorInput
+export type Output = S3Output | GitMirrorInput
 
 export interface GitBackupInput {
     host: GitInputHost
@@ -31,6 +33,12 @@ export interface MongoBackupInput {
     tunnel: SSLTunnelConfig | null
 }
 
+export interface GitMirrorInput {
+    repo_url: string
+    username: string
+    password: string
+}
+
 export interface SSLTunnelConfig {
     username: string;
     host: string;
@@ -42,7 +50,7 @@ export enum StorageType {
     local = 'local'
 }
 
-export interface Output {
+export interface S3Output {
     storage: StorageType
     bucket: string
     region: string
